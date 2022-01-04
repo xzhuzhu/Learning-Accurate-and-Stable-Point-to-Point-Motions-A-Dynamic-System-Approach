@@ -45,7 +45,7 @@ np.random.seed(100)
 
 input_window = 1  # number of input steps
 output_window = 1  # number of prediction steps, in this model its fixed to one
-batch_size =70
+batch_size =150
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # device = torch.device("cpu")
 
@@ -402,12 +402,13 @@ class Tnn1(nn.Module):
 
     def forward(self, src):
         output = self.encoder1(src)
-        output = F.relu(output)
+        output = torch.relu(output)
 
         output = self.encoder2(output)
-        output = F.relu(output)
+        output = torch.relu(output)
 
         output = self.encoder3(output)
+
         output = torch.tanh(output)
 
         return output
@@ -421,12 +422,13 @@ class Tnn2(nn.Module):
 
     def forward(self, src):
         output = self.encoder1(src)
-        output = F.relu(output)
+        output = torch.relu(output)
 
         output = self.encoder2(output)
-        output = F.relu(output)
+        output = torch.relu(output)
 
         output = self.encoder3(output)
+
         output = torch.tanh(output)
 
         return output
@@ -440,12 +442,13 @@ class Tnn3(nn.Module):
 
     def forward(self, src):
         output = self.encoder1(src)
-        output = F.relu(output)
+        output = torch.relu(output)
 
         output = self.encoder2(output)
-        output = F.relu(output)
+        output = torch.relu(output)
 
         output = self.encoder3(output)
+
         output = torch.tanh(output)
 
         return output
@@ -459,12 +462,13 @@ class Tnn4(nn.Module):
 
     def forward(self, src):
         output = self.encoder1(src)
-        output = F.relu(output)
+        output = torch.relu(output)
 
         output = self.encoder2(output)
-        output = F.relu(output)
-
+        output = torch.relu(output)
+        #
         output = self.encoder3(output)
+
         output = torch.tanh(output)
 
         return output
@@ -540,11 +544,6 @@ class TransAm(nn.Module):
         self.ende = Ende()
 
 
-
-
-
-
-
     def forward(self, src):
         src_input = src
         src_inputt = self.encoder1(src_input)
@@ -557,7 +556,7 @@ class TransAm(nn.Module):
         output0 = output0.transpose(0, 1)
 
         output0 = self.linear1(output0.transpose(0,2)).transpose(0,2)
-        src_inputt11 = self.linear2(src_inputt11.transpose(0,2)).transpose(0,2)
+        src_inputt111 = self.linear2(src_inputt11.transpose(0,2)).transpose(0,2)
         www1 = self.linear1.weight
         www2 = self.linear2.weight
 
@@ -568,8 +567,8 @@ class TransAm(nn.Module):
 
         output4_trans = output0 + 2 * lss * output0
 
-        output4_linear = src_inputt11 + 2 * lss2 * src_inputt11
-        output4 = output4_linear   + output4_trans
+        output4_linear = src_inputt111 + 2 * lss2 * src_inputt111
+        output4 =  output4_linear + output4_trans
 
         output55 = -output4+src4_1.transpose(0,2)
 
@@ -581,13 +580,10 @@ class TransAm(nn.Module):
         wgg_inv = torch.inverse(wgg)
         wg_sf_inv = torch.mm(wg_sf,wgg_inv)
         output555 = torch.mm(output555.squeeze(0), wg_sf_inv).unsqueeze(0)
+        look = output555
 
-        output5 = output555
-
-        look = output5
-
-
-        return look, wg_sf,wg_sf_inv
+        haha = 0
+        return look, haha
 
 
 
@@ -651,9 +647,9 @@ def train(model,train_data):
         targetsa = np.squeeze(targets[:, :, 0: 4, ], axis=3)
 
         optimizer.zero_grad()
-        output,wg_sf,wg_sf_inv = model(dataa)
+        output,haha = model(dataa)
 
-        loss = criterion(output, targetsa)
+        loss = criterion(output, targetsa)+haha
 
 
         loss.backward()
@@ -673,7 +669,7 @@ def train(model,train_data):
             elapsed = time.time() - start_time
             print('| epoch {:3d} | {:5d}/{:5d} batches | '
                   'lr {:02.6f} | {:5.2f} ms | '
-                  'loss {:10.10f} | ppl {:8.2f}'.format(
+                  'loss {:12.12f} | ppl {:8.2f}'.format(
                 epoch, batch, len(train_data) // batch_size, scheduler.get_lr()[0],
                               elapsed * 1000 ,
                 cur_loss, cur_loss))
@@ -693,7 +689,7 @@ def plot_and_loss(eval_model ,data_source, epoch):
             dataa = np.squeeze(data, axis=3)
 
             targeta = np.squeeze(target, axis=3)
-            output,wg_sf,wg_sf_inv= eval_model(dataa)
+            output,wg_sf= eval_model(dataa)
 
             total_loss += criterion(output, targeta).item()#+max(0,value_v)+ max(0,real_v)
 
@@ -717,7 +713,7 @@ def predict_future(eval_model, data_source, steps,epoch):
 
     with torch.no_grad():
         for i in range(0, steps):
-            output,wg_sf,wg_sf_inv = eval_model(data1a)
+            output,wg_sf = eval_model(data1a)
             data2a = torch.cat((data2a, output))
 
             data1a = output
@@ -757,7 +753,7 @@ def evaluate(eval_model, data_source):
             dataa = np.squeeze(data, axis=3)
             targetsa = np.squeeze(targets, axis=3)
 
-            output,_,_ = eval_model(dataa)
+            output,_ = eval_model(dataa)
 
 
             total_loss += criterion(output, targetsa).cpu().item()
@@ -791,7 +787,7 @@ for epoch in range(1, epochs + 1):
     a = torch.Tensor((x111,y111)).squeeze()
 
 
-    if (epoch % 10000 == 0):
+    if (epoch % 5000 == 0):
 
         val_loss = plot_and_loss(model, val_data, epoch)
         predict_future(model, val_data,len(x1),epoch)
