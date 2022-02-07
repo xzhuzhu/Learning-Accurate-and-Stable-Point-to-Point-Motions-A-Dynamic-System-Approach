@@ -413,74 +413,15 @@ class Tnn1(nn.Module):
 
         return output
 
-class Tnn2(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.encoder1 = nn.Linear(50, 50, bias=False)
-        self.encoder2 = nn.Linear(50, 50, bias=False)
-        self.encoder3 = nn.Linear(50, 50, bias=False)
-
-    def forward(self, src):
-        output = self.encoder1(src)
-        output = torch.relu(output)
-
-        output = self.encoder2(output)
-        output = torch.relu(output)
-
-        output = self.encoder3(output)
-
-        output = torch.tanh(output)
-
-        return output
-
-class Tnn3(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.encoder1 = nn.Linear(50, 50, bias=False)
-        self.encoder2 = nn.Linear(50, 50, bias=False)
-        self.encoder3 = nn.Linear(50, 50, bias=False)
-
-    def forward(self, src):
-        output = self.encoder1(src)
-        output = torch.relu(output)
-
-        output = self.encoder2(output)
-        output = torch.relu(output)
-
-        output = self.encoder3(output)
-
-        output = torch.tanh(output)
-
-        return output
-
-class Tnn4(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.encoder1 = nn.Linear(50, 50, bias=False)
-        self.encoder2 = nn.Linear(50, 50, bias=False)
-        self.encoder3 = nn.Linear(50, 50, bias=False)
-
-    def forward(self, src):
-        output = self.encoder1(src)
-        output = torch.relu(output)
-
-        output = self.encoder2(output)
-        output = torch.relu(output)
-        #
-        output = self.encoder3(output)
-
-        output = torch.tanh(output)
-
-        return output
 
 
 class Ende(nn.Module):
 	def __init__(self):
 		super().__init__()
 		self.tnn1 = Tnn1()
-		self.tnn2 = Tnn2()
-		self.tnn3 = Tnn3()
-		self.tnn4 = Tnn4()
+		self.tnn2 = Tnn1()
+		self.tnn3 = Tnn1()
+		self.tnn4 = Tnn1()
 
 
 	def forward(self,src_inputt,output55):
