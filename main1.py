@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser(description='modified_attention')
 parser.add_argument(
     '--data-name',  # learn
     type=str,
-    default='Sshape',#
+    default='JShape',#
     help='name of the letter in LASA dataset')
 
 args = parser.parse_args()
