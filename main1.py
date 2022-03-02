@@ -7,7 +7,7 @@ from plot_utils import *
 from data_utils import *
 import argparse
 
-parser = argparse.ArgumentParser(description='modified_attention')
+parser = argparse.ArgumentParser(description='A_Dynamic_System_Approach')
 
 parser.add_argument(
     '--data-name',  # learn
