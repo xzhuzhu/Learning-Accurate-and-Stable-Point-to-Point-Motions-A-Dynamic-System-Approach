@@ -164,7 +164,6 @@ if test_learner_model:
                                              t_final=1*t_final)
         # print(learner_traj)
 
-        learner_traj = learner_traj[0]
 
         learner_traj_list.append(learner_traj)
 
