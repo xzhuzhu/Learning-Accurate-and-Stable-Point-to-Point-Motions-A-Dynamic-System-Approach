@@ -81,7 +81,7 @@ def train(model, loss_fn, opt, train_dataset,
 			else:
 				raise ValueError
 			# compute loss
-			loss =loss_fn(y_pred, y_batch.unsqueeze(0))+0.0001*loss_fn(y_pred2, torch.mm(y_batch,weight).unsqueeze(0)) #
+			loss =loss_fn(y_pred, y_batch.unsqueeze(0))+0.01*loss_fn(y_pred2, torch.mm(y_batch,weight).unsqueeze(0)) #
 
 			train_loss += loss.item()
 
