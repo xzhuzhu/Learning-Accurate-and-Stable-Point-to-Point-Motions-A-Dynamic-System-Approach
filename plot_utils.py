@@ -7,41 +7,11 @@ import os
 
 
 
-def sim_euler(dynamics, state_0, t_final, dt,t_init=None):
-    '''
-    Simulate dynamics via euler method
-    TODO: convert this pytorch
-    '''
-    if t_init is not None:
-        t = np.array([t_init])
-        T = t_final - t_init
-    else:
-        t = np.array([0.])
-        T = t_final
-    state = state_0
-    if state_0.ndim == 1:
-        y = state_0.reshape(-1, 1)
-        for i in np.arange(dt, T + dt, dt):
-
-            state = state + dt * dynamics(t[-1], state)[0]
-            y = torch.cat((y, state.reshape(-1, 1)), 1)
-            t = np.concatenate((t, np.array([i])))
-            p = dynamics(t[-1], state)[1]
-
-    else:
-        y = state_0
-        for i in np.arange(dt, T + dt, dt):
-            state = state + dt * dynamics(t[-1], state)
-            y = np.concatenate((y, state), axis=1)
-            t = np.concatenate((t, np.array([i])))
-
-    return t, y.cpu().detach(),p
-
 
 def generate_trajectories(
         model, x_init, time_dependent=False, order=2,
         return_label=True, filename=None,via_point=None,
-        t_init=0., t_final=10., t_step=0.01, method='ivp'):
+        t_init=0., t_final=10., t_step=0.01):
     '''
     generate roll-out trajectories of the given dynamical model
     :param model (torch.nn.Module): dynamical model
@@ -71,7 +41,6 @@ def generate_trajectories(
         state = torch.Tensor(state)
 
         state = state.unsqueeze(0).unsqueeze(0)#.to(device)
-        # state = np.expand_dims(np.expand_dims(state,0),0)
         a = 0
         if time_dependent:
             y_pred,a,_ = model(t, state)
@@ -81,24 +50,17 @@ def generate_trajectories(
 
 
         # the time-derivative of the state is the velocity
-        x_dot = y_pred.squeeze()
-        x_dot = x_dot.detach().numpy()
+        x_dot = y_pred.squeeze().detach().numpy()
         return x_dot
 
     # the times at which the trajectory is computed
     t_eval = np.arange(t_init, t_final, t_step)
 
     # integrate the trajectory numerically
-    p = 0
-    if method == 'ivp':
-        sol = solve_ivp(dynamics, [t_init, t_final], x_init, t_eval=t_eval)
-        x_data = torch.from_numpy(sol.y.T).float()
-    elif method == 'euler':
-        t, y,p = sim_euler(dynamics,x_init, t_final, t_step, t_init=t_init)
-        x_data = y.T
-        # x_data = torch.from_numpy(y.T).float()
-    else:
-        assert ValueError('Unknown integration method!')
+   
+    sol = solve_ivp(dynamics, [t_init, t_final], x_init, t_eval=t_eval)
+    x_data = torch.from_numpy(sol.y.T).float()
+    
 
     # if the control inputs along the trajectory are also needed,
     # compute the control inputs (useful for generating datasets)
@@ -111,7 +73,7 @@ def generate_trajectories(
     if filename is not None:
         torch.save(data, filename)
 
-    return data,p
+    return data
 
 
 def visualize_field(x1_coords, x2_coords, z_coords,
