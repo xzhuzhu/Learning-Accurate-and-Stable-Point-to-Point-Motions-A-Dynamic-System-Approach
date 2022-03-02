@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser(description='modified_attention')
 parser.add_argument(
     '--data-name',  # learn
     type=str,
-    default='Multi_Models_2',#'Multi_Models_1'
+    default='Sshape',#
     help='name of the letter in LASA dataset')
 
 args = parser.parse_args()
@@ -94,7 +94,6 @@ for n in range(len(idx) - 1):
     t_eval = np.arange(0., t_final + dt, dt)
     time_list.append(t_eval)
 
-# dt = torch.Tensor(np.array(dt)).to(device)
 n_experts = len(dataset_list)
 
 x_train_tensor = torch.from_numpy(x_train).to(device)
@@ -123,7 +122,6 @@ if not load_learner_model:
     # Training learner
     optimizer = optim.AdamW(learner_model.parameters(), lr=learning_rate, weight_decay=weight_regularizer)
     criterion = nn.SmoothL1Loss()
-    # criterion = nn.MSELoss()
 
     loss_fn = criterion
 
@@ -153,7 +151,6 @@ else:
 
 if test_learner_model:
     print('Plotting rollouts and vector fields. This may take a few moments ...')
-    # learner_model.eval()
     learner_traj_list = []
 
     # rollout trajectories
@@ -164,8 +161,7 @@ if test_learner_model:
 
         t_final = t_final_list[n]
         learner_traj = generate_trajectories(learner_model, s0, order=1, return_label=False, t_step=dt,
-                                             t_final=1*t_final,
-                                             method='ivp')
+                                             t_final=1*t_final)
         # print(learner_traj)
 
         learner_traj = learner_traj[0]
@@ -214,24 +210,7 @@ if test_learner_model:
         ax1.plot(expert_traj[:, 0], expert_traj[:, 1], 'w', linewidth=4, linestyle=':')
         ax1.plot(learner_traj[:, 0], learner_traj[:, 1], 'r', linewidth=3)
         ax1.plot(expert_traj[-1, 0], expert_traj[-1, 1], 'o', linewidth=10, markersize=8, markeredgecolor='black')
-    #     ll = expert_traj.shape[0]
-    #     for i in range(ll - 1):
-    #         a = np.power((expert_traj[i, 0] - expert_traj[i + 1, 0]), 2) + np.power(
-    #             (expert_traj[i, 1] - expert_traj[i + 1, 1]), 2)
-    #         b = np.power((learner_traj[i, 0] - learner_traj[i + 1, 0]), 2) + np.power(
-    #             (learner_traj[i, 1] - learner_traj[i + 1, 1]), 2)
-    #         c = np.power((expert_traj[i, 0] - learner_traj[i, 0]), 2) + np.power((expert_traj[i, 1] - learner_traj[i, 1]),
-    #                                                                              2)
-    #         d = np.power((expert_traj[i + 1, 0] - learner_traj[i + 1, 0]), 2) + np.power(
-    #             (expert_traj[i + 1, 1] - learner_traj[i + 1, 1]), 2)
-    #         a = np.power(a, 0.5)
-    #         b = np.power(b, 0.5)
-    #         c = np.power(c, 0.5)
-    #         d = np.power(d, 0.5)
-    #
-    #         sum += (a + b) * (c + d) / 4
-    # sum = sum / (n + 1)
-    # print(sum)
+
     try:
         os.makedirs('plots')
     except OSError:
