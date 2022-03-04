@@ -127,7 +127,7 @@ class Ende(nn.Module):
 
 
 
-		J_T = torch.bmm(J_1,J_2)
+		J_T = torch.bmm(J_2,J_1)
 
 		return src_inputt11,J_T
 
